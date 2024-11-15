@@ -51,3 +51,6 @@ This project is a scalable microservices-based solution for monitoring the healt
 
    Open http://localhost:8000/stats in your browser.
 
+## First demo
+
+![First demo](https://github.com/user-attachments/assets/33d7d4df-58bd-492e-b7d3-57a4a3266bce)
