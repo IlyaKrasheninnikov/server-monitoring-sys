@@ -32,8 +32,8 @@ CHECK_COUNT = Counter("endpoint_checks_total", "Total number of endpoint checks"
 
 # List of endpoints to monitor
 ENDPOINTS = [
-    {"url": "https://api.github.com", "name": "GitHub"},
-    {"url": "https://api.vk.com/", "name": "VK"},
+    {"url": "https://github.com", "name": "GitHub"},
+    {"url": "https://vk.com", "name": "VK"},
     {"url": "https://api.telegram.org", "name": "Telegram"}
 ]
 
