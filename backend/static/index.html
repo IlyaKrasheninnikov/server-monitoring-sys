@@ -15,8 +15,12 @@
             text-align: center;
         }
         .chart-container {
-            width: 80%;
-            margin: 0 auto;
+            width: 45%;
+        }
+        .charts-wrapper {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
         }
         .metrics-container {
             display: flex;
@@ -54,11 +58,13 @@
         </div>
     </div>
 
-    <div class="chart-container">
-        <canvas id="availabilityChart"></canvas>
-    </div>
-    <div class="chart-container">
-        <canvas id="responseTimeChart"></canvas>
+    <div class="charts-wrapper">
+        <div class="chart-container">
+            <canvas id="availabilityChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="responseTimeChart"></canvas>
+        </div>
     </div>
 
     <script>
@@ -95,8 +101,8 @@
                     datasets: [{
                         label: 'Availability',
                         data: availabilityData,
-                        backgroundColor: ['green', 'red', 'red'],
-                        borderColor: ['green', 'red', 'red'],
+                        backgroundColor: ['green', 'green', 'green'],
+                        borderColor: ['green', 'green', 'green'],
                         borderWidth: 1
                     }]
                 }
