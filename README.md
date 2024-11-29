@@ -58,4 +58,4 @@ This project is a scalable microservices-based solution for monitoring the healt
 
 ## Demo
 
-![First demo](https://github.com/user-attachments/assets/33d7d4df-58bd-492e-b7d3-57a4a3266bce)
+![First demo](https://github.com/user-attachments/assets/2ae2774b-d91c-4a1e-a496-daa47c24d17c)
