@@ -1,112 +1,159 @@
-from fastapi import FastAPI, HTTPException, Response
-from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
-from prometheus_client import start_http_server, Counter, Gauge, generate_latest
-import aiohttp
+from urllib.parse import urlparse
+from fastapi import FastAPI, BackgroundTasks, HTTPException
+from starlette.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 import asyncio
-import os
+import httpx
+from motor.motor_asyncio import AsyncIOMotorClient
 from datetime import datetime
-from typing import List, Dict
-
-app = FastAPI()
-
-# CORS configuration
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# MongoDB connection
-mongodb_client = AsyncIOMotorClient(os.getenv("MONGODB_URI"))
-db = mongodb_client.monitoring
-
-# Prometheus metrics
-ENDPOINT_UP = Gauge("endpoint_up", "Endpoint availability", ["endpoint"])
-RESPONSE_TIME = Gauge("response_time_seconds", "Response time in seconds", ["endpoint"])
-CHECK_COUNT = Counter("endpoint_checks_total", "Total number of endpoint checks", ["endpoint"])
-
-# List of endpoints to monitor
-ENDPOINTS = [
-    {"url": "https://github.com", "name": "GitHub"},
-    {"url": "https://vk.com", "name": "VK"},
-    {"url": "https://api.telegram.org", "name": "Telegram"}
-]
 
 
-async def check_endpoint(session: aiohttp.ClientSession, endpoint: Dict):
-    try:
-        start_time = datetime.now()
-        async with session.get(endpoint["url"]) as response:
-            response_time = (datetime.now() - start_time).total_seconds()
+def ensure_protocol(url: str) -> str:
+    if url[-1] != "/":
+        url = url + "/"
+    parsed_url = urlparse(url)
+    if not parsed_url.scheme:
+        return f"https://{url}"
+    return url
 
-            # Update Prometheus metrics
-            ENDPOINT_UP.labels(endpoint["name"]).set(1 if response.status == 200 else 0)
-            RESPONSE_TIME.labels(endpoint["name"]).set(response_time)
-            CHECK_COUNT.labels(endpoint["name"]).inc()
 
-            # Store in MongoDB
-            await db.status_checks.insert_one({
-                "endpoint": endpoint["name"],
-                "url": endpoint["url"],
-                "status": response.status,
-                "response_time": response_time,
-                "timestamp": datetime.utcnow()
-            })
+# Your existing classes and methods
+class WebsiteCheck:
+    def __init__(self, url, status, response_time, last_checked, is_down, history=None, _id=None):
+        self.url = url
+        self.status = status
+        self.response_time = response_time
+        self.last_checked = last_checked if isinstance(last_checked,
+                                                       datetime) else datetime.now()  # Ensure datetime type
+        self.is_down = is_down
+        self.history = history if history is not None else []
+        self._id = _id
 
-            return {
-                "endpoint": endpoint["name"],
-                "status": "up" if response.status == 200 else "down",
-                "response_time": response_time
-            }
-    except Exception as e:
-        ENDPOINT_UP.labels(endpoint["name"]).set(0)
-        return {
-            "endpoint": endpoint["name"],
-            "status": "down",
-            "error": str(e)
+    def to_dict(self):
+        result = {
+            "url": self.url,
+            "status": self.status,
+            "response_time": self.response_time,
+            "last_checked": self.last_checked.isoformat() if isinstance(self.last_checked,
+                                                                        datetime) else self.last_checked,
+            "is_down": self.is_down,
+            "history": self.history,
         }
 
+        if self._id:
+            result["_id"] = str(self._id)  # Convert ObjectId to string
 
-# Serve the static folder containing the static
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-
-@app.get("/stats", response_class=HTMLResponse)
-async def get_dashboard():
-    return HTMLResponse(open("static/index.html").read())
+        return result
 
 
-@app.on_event("startup")
-async def startup_event():
-    # Start Prometheus metrics server on a different port
-    start_http_server(8001)
+class WebsiteMonitorService:
+    def __init__(self, mongodb_uri):
+        self.client = AsyncIOMotorClient(mongodb_uri)
+        self.db = self.client.website_monitor
+        self.websites_collection = self.db.websites
+
+    async def check_website_status(self, url):
+        try:
+            start_time = datetime.now()
+            async with httpx.AsyncClient() as client:
+                response = await client.get(url, timeout=10)
+                end_time = datetime.now()
+            response_time = round((end_time - start_time).total_seconds() * 1000, 2)
+            status_code = response.status_code
+            is_down = status_code >= 400
+            website_obj = await self.websites_collection.find_one({'url': url})
+            new_history = website_obj['history'] if website_obj else []
+            new_history.append({
+                "response_time": int(response_time),
+                "last_checked": datetime.now().isoformat()
+            })
+            print(new_history)
+            website_check = WebsiteCheck(
+                url=url,
+                status=str(status_code),
+                response_time=response_time,
+                last_checked=datetime.now(),
+                is_down=is_down,
+                history=new_history
+            )
+            await self.save_website_status(website_check)
+            return website_check.to_dict()
+
+        except Exception as e:
+            print(e)
+            website_check = WebsiteCheck(
+                url=url,
+                status='Error',
+                response_time=0,
+                last_checked=datetime.now(),
+                is_down=True
+            )
+            await self.save_website_status(website_check)
+            return website_check
+
+    async def save_website_status(self, website_check: WebsiteCheck):
+        website_check_dict = website_check.to_dict()
+
+        if website_check._id:
+            website_check_dict["_id"] = website_check._id
+
+        await self.websites_collection.update_one(
+            {"url": website_check.url},
+            {"$set": website_check_dict},
+            upsert=True
+        )
+
+    async def get_or_create_website_status(self, url):
+        existing_status = await self.check_website_status(url)
+
+        return existing_status
 
 
-@app.get("/status")
-async def get_status():
-    async with aiohttp.ClientSession() as session:
-        tasks = [check_endpoint(session, endpoint) for endpoint in ENDPOINTS]
-        results = await asyncio.gather(*tasks)
-        return results
+# Create FastAPI instance
+app = FastAPI()
+
+# Enable CORS
+origins = [
+    "http://localhost:3000"  # Allow frontend running on this URL
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # Specify which origins are allowed
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all methods like GET, POST, etc.
+    allow_headers=["*"],  # Allow all headers
+)
+
+monitor_service = WebsiteMonitorService("mongodb://localhost:27017")
 
 
-@app.get("/history/{endpoint_name}")
-async def get_history(endpoint_name: str):
-    cursor = db.status_checks.find(
-        {"endpoint": endpoint_name},
-        {"_id": 0}
-    ).sort("timestamp", -1).limit(100)
-
-    history = await cursor.to_list(length=100)
-    return history
+@app.post("/monitor/check")
+async def monitor_website(url: str, background_tasks: BackgroundTasks):
+    url = ensure_protocol(url)
+    background_tasks.add_task(monitor_service.check_website_status, url)
+    return {"message": "Monitoring started"}
 
 
-@app.get("/metrics")
-async def metrics():
-    # Expose Prometheus metrics
-    return Response(generate_latest(), media_type="text/plain")
+@app.get("/monitor/status/{url:path}")
+async def get_website_status(url: str):
+    url = ensure_protocol(url)
+    try:
+        status = await monitor_service.get_or_create_website_status(url)
+
+        website_check = WebsiteCheck(**status)
+        return website_check.to_dict()
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+async def periodic_monitoring():
+    websites = await monitor_service.websites_collection.find().to_list(1000)
+    for website in websites:
+        await monitor_service.check_website_status(website['url'])
+
+
+if __name__ == "__main__":
+    # Periodic monitoring should be integrated further (asyncio is temporary solution)
+    asyncio.create_task(periodic_monitoring())
