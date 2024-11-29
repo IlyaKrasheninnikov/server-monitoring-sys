@@ -41,7 +41,7 @@ This project is a scalable microservices-based solution for monitoring the healt
     ```bash
     cd backend
     pip install -r requirements.txt
-    uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+    uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     ```
 
 3. Set up frontend with ReactJS:
