@@ -10,6 +10,8 @@ import httpx
 from motor.motor_asyncio import AsyncIOMotorClient
 from datetime import datetime, timedelta
 from pydantic import BaseModel, Field
+from dotenv import load_dotenv
+import os
 
 
 def ensure_protocol(url: str) -> str:
@@ -191,9 +193,10 @@ class MonitoringStartResponse(APIModel):
     url: str
     timestamp: datetime = Field(default_factory=datetime.now)
 
+load_dotenv()
 
-MONGODB_URI = "mongodb://localhost:27017"
-FRONTEND_ORIGINS = ["http://localhost:3000"]
+MONGODB_URI = os.getenv("MONGODB_URI")
+FRONTEND_ORIGINS = os.getenv("FRONTEND_ORIGINS").split(',')
 
 app = FastAPI()
 
