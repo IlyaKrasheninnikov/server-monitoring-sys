@@ -162,7 +162,7 @@ class WebsiteMonitorService:
         )
 
         if not document:
-            return []
+            document["history"] = []
 
         def round_to_nearest_15min(dt):
             return dt.replace(second=0, microsecond=0, minute=(dt.minute // 15) * 15)
