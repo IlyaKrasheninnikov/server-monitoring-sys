@@ -43,7 +43,7 @@ const WebsiteMonitorDashboard = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:8000/monitor/report/${encodeURIComponent(url)}`, {method: 'POST'});
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/monitor/report/${encodeURIComponent(url)}`, {method: 'POST'});
 
       if (!response.ok) {
         throw new Error('Failed to submit report');
@@ -67,10 +67,10 @@ const WebsiteMonitorDashboard = () => {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`http://localhost:8000/monitor/status/${encodeURIComponent(url)}`);
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/monitor/status/${encodeURIComponent(url)}`);
       const data = await response.json();
       setWebsiteData(data);
-      const report_response = await fetch(`http://localhost:8000/monitor/outage-history/${encodeURIComponent(url)}`);
+      const report_response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/monitor/outage-history/${encodeURIComponent(url)}`);
       const report_data = await report_response.json();
       setReportData(report_data);
       toast.success('Website status retrieved successfully');
