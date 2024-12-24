@@ -25,7 +25,7 @@ import {
   AlertCircle,
   RefreshCw,
   Copy,
-  Link as LinkIcon
+  Link as LinkIcon, Search
 } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
 import { Input } from '../components/ui/Input';
@@ -111,6 +111,15 @@ const WebsiteMonitorDashboard = () => {
     }
   };
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const url = e.target.search.value;
+    if (url) {
+      const cleanUrl = url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+      navigate(`/monitor/${encodeURIComponent(cleanUrl)}`);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1E1E1E] to-[#121212] flex flex-col">
       <Toaster position="top-right" richColors />
@@ -123,27 +132,19 @@ const WebsiteMonitorDashboard = () => {
             </h1>
           </Link>
 
-          <Card className="mb-6 bg-[#1E1E1E] border-[#2C2C2C] shadow-2xl">
-            <CardContent className="flex space-x-4 p-6">
-              <Input
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder="Enter website URL (e.g., https://www.example.com)"
-                className="flex-grow bg-[#2C2C2C] border-[#3C3C3C] text-white text-lg py-3"
-              />
-              <Button
-                onClick={checkWebsite}
-                disabled={isLoading}
-                className="flex items-center text-lg py-3 px-6"
-              >
-                {isLoading ? (
-                  <>
-                    <RefreshCw className="mr-2 animate-spin" /> Checking...
-                  </>
-                ) : (
-                  <>Check<ChevronRight className="ml-2" /></>
-                )}
-              </Button>
+          <Card className="mb-12 bg-[#1E1E1E] border-[#2C2C2C]">
+            <CardContent className="p-6">
+              <form onSubmit={handleSearch} className="flex space-x-4">
+                <Input
+                  name="search"
+                  placeholder="Enter website URL (e.g., example.com)"
+                  className="flex-grow bg-[#2C2C2C] border-[#3C3C3C] text-white"
+                />
+                <Button type="submit" className="flex items-center">
+                  <Search className="mr-2" />
+                  Monitor
+                </Button>
+              </form>
             </CardContent>
           </Card>
 
