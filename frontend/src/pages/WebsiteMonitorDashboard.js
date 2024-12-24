@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Area, AreaChart} from 'recharts';
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle
-} from './components/ui/Card';
-import { Button } from './components/ui/Button';
-import { Input } from './components/ui/Input';
+} from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,7 +17,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from './components/ui/AlertDialog';
+} from '../components/ui/AlertDialog';
 import {
   Globe,
   Clock,
@@ -28,49 +28,56 @@ import {
   Link as LinkIcon
 } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
+import { Input } from '../components/ui/Input';
+
 
 const WebsiteMonitorDashboard = () => {
+  const { website } = useParams();
+  const navigate = useNavigate();
   const [url, setUrl] = useState('');
   const [websiteData, setWebsiteData] = useState(null);
   const [reportData, setReportData] = useState(null);
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    if (website) {
+      checkWebsite();
+    }
+  }, [website]);
+
   const submitReport = async () => {
-    if (!websiteData?.url) {
+    if (!website) {
       toast.error('No website data available');
       return;
     }
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/monitor/report/${encodeURIComponent(url)}`, {method: 'POST'});
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/monitor/report/${encodeURIComponent(website)}`, {
+        method: 'POST'
+      });
 
       if (!response.ok) {
         throw new Error('Failed to submit report');
       }
 
       const result = await response.json();
-      toast.success(result.message); // Show success message
-      setReportDialogOpen(false); // Close the dialog
+      toast.success(result.message);
+      setReportDialogOpen(false);
     } catch (error) {
       console.error('Error submitting report:', error);
       toast.error('Failed to submit report');
     }
   };
 
-
   const checkWebsite = async () => {
-    if (!url) {
-      toast.error('Please enter a valid URL');
-      return;
-    }
-
     setIsLoading(true);
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/monitor/status/${encodeURIComponent(url)}`);
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/monitor/status/${encodeURIComponent(website)}`);
       const data = await response.json();
       setWebsiteData(data);
-      const report_response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/monitor/outage-history/${encodeURIComponent(url)}`);
+
+      const report_response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/monitor/outage-history/${encodeURIComponent(website)}`);
       const report_data = await report_response.json();
       setReportData(report_data);
       toast.success('Website status retrieved successfully');
@@ -110,9 +117,11 @@ const WebsiteMonitorDashboard = () => {
 
       <div className="container mx-auto px-6 py-12 flex-grow max-w-6xl">
         <div className="w-full">
-          <h1 className="text-5xl font-bold mb-12 text-center bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent animate-gradient">
-            Website Health Monitor
-          </h1>
+          <Link to="/" className="block mb-12">
+            <h1 className="text-5xl font-bold text-center bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent hover:opacity-80 transition-opacity">
+              Website Health Dashboard
+            </h1>
+          </Link>
 
           <Card className="mb-6 bg-[#1E1E1E] border-[#2C2C2C] shadow-2xl">
             <CardContent className="flex space-x-4 p-6">
@@ -209,7 +218,7 @@ const WebsiteMonitorDashboard = () => {
 
                 <Card className="bg-[#1E1E1E] border-[#2C2C2C] shadow-2xl">
                   <CardHeader>
-                    <CardTitle className="text-white">Outage History</CardTitle>
+                    <CardTitle className="text-white">Outage History in the last 24 hours</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <AreaChart
