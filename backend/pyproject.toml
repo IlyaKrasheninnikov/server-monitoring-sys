@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "website-monitoring-service"
+version = "0.1.1"
+description = "A FastAPI-based website monitoring service"
+authors = ["ivantitov"]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pydantic = "^2.10.4"
+httpx = "^0.28.1"
+motor = "^3.6.0"
+pydantic-settings = "^2.7.0"
+uvicorn = "^0.34.0"
+fastapi = "^0.115.6"
+apscheduler = "^3.11.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
