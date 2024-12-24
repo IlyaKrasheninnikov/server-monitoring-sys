@@ -1,13 +1,17 @@
 import React from 'react';
-import WebsiteMonitorDashboard from './WebsiteMonitorDashboard';
-import './index.css';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import MainDashboard from './pages/MainDashboard';
+import WebsiteMonitorDashboard from './pages/WebsiteMonitorDashboard';
 
-function App() {
+const App = () => {
   return (
-    <div className="App">
-      <WebsiteMonitorDashboard />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<MainDashboard />} />
+        <Route path="/monitor/:website" element={<WebsiteMonitorDashboard />} />
+      </Routes>
+    </BrowserRouter>
   );
-}
+};
 
 export default App;
