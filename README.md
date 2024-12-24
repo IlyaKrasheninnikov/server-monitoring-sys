@@ -17,7 +17,7 @@ This project is a scalable microservices-based solution for monitoring the healt
 
 ## Tech Stack  
 - **Backend:** FastAPI  
-- **Frontend:** React (or similar library)  
+- **Frontend:** Reactjs
 - **DevOps:** Docker, Docker Compose  
 - **Monitoring:** Prometheus, Grafana  
 - **Database:** MongoDB  
@@ -26,31 +26,28 @@ This project is a scalable microservices-based solution for monitoring the healt
 ## Getting Started  
 
 ### Prerequisites  
-- Docker and Docker Compose installed on your system.  
-- Node.js and npm (if running frontend locally).  
+- Docker.  
 
 ### Installation  
 1. Clone the repository:
 
    ```bash  
-   git clone https://github.com/<your-repo-name>/server-monitoring-system.git  
-   cd server-monitoring-system  
+   git clone https://github.com/IlyaKrasheninnikov/server-monitoring-sys.git  
+   cd server-monitoring-sys
    ```
    
-2. Set up the services using Docker Compose:
+2. Set up backend, frontend and mongodb containers using docker:
   
     ```bash
-    docker-compose up -d
+    docker compose up
     ```
-
-3. Access Grafana for visualizing metrics:
-
-   Open http://localhost:3000 in your browser.
 
 4. Access frontend:
 
-   Open http://localhost:8000/stats in your browser.
+   Open http://localhost:3000/ in your browser.
 
-## First demo
+## Demo
 
-![First demo](https://github.com/user-attachments/assets/33d7d4df-58bd-492e-b7d3-57a4a3266bce)
+![Demo](https://github.com/user-attachments/assets/0d7c8f70-1218-4415-a506-76870fce3cd7)
+![Demo](https://github.com/user-attachments/assets/d2c2d1d5-49aa-4bce-8185-350f4349518b)
+![Demo](https://github.com/user-attachments/assets/297e45c2-3197-4b61-8df2-099125072da5)

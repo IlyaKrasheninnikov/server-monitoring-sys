@@ -1,23 +1,15 @@
-# Use an Python runtime as the base image
-FROM python:3.11-slim
+FROM python:3.12-slim
 
-# Set working directory in the container
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update
+RUN pip install poetry
 
-# Copy requirements
-COPY requirements.txt .
+COPY pyproject.toml ./
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN poetry config virtualenvs.create false
 
-# Copy the rest of the application
-COPY . .
+RUN poetry install --no-dev --no-interaction --no-ansi
 
-# Expose the port the app runs on
-EXPOSE 8000
+COPY src/ ./src/
 
-# Command to run the application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["poetry", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
