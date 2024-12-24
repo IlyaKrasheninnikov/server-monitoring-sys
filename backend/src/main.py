@@ -1,6 +1,4 @@
 from contextlib import asynccontextmanager
-from urllib.parse import urlparse
-
 from fastapi import FastAPI, HTTPException
 from starlette.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
