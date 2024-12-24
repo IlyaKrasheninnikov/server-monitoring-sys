@@ -77,6 +77,7 @@ async def report_issue(url: str):
     url = ensure_protocol(url)
     try:
         await monitor_service.save_report(url)
+        await monitor_service.serve_last_reported(url)
         return {"message": "Report submitted successfully."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -88,5 +89,13 @@ async def get_outage_history(url: str):
     try:
         history = await monitor_service.get_outage_history(url)
         return history
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/monitor/last-reported")
+async def get_last_reported():
+    try:
+        return await monitor_service.get_last_reported()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
