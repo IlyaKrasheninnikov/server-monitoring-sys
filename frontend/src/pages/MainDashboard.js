@@ -10,7 +10,7 @@ const TOP_WEBSITES = [
   'google.com', 'facebook.com', 'x.com', 'netflix.com', 'youtube.com',
   'gmail.com', 'outlook.com', 'steamcommunity.com', 'whatsapp.com', 'live.com',
   'instagram.com', 'dropbox.com', 'battle.net', 'vk.com', 'reddit.com',
-  'pinterest.com', 'spotify.com', 'twitch.tv', 'web.telegram.org', 'ya.ru', "faceit.com"
+  'pinterest.com', 'spotify.com', 'twitch.tv', 'web.telegram.org', 'ya.ru', "discord.com"
 ];
 
 const MainDashboard = () => {
@@ -57,9 +57,9 @@ const MainDashboard = () => {
     // Fetch last reported sites
     const fetchLastReported = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/monitor/recent-reports`);
+        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/monitor/last-reported`);
         const data = await response.json();
-        setLastReported(data.slice(0, 5));
+        setLastReported(data.slice(0, 10)); // Fetch 10 last reported sites
       } catch (error) {
         console.error('Error fetching recent reports:', error);
       }
@@ -175,7 +175,7 @@ const MainDashboard = () => {
           <div className="space-y-6">
             <Card className="bg-[#1E1E1E] border-[#2C2C2C]">
               <CardHeader>
-                <CardTitle className="text-lg">Latest Sites Checked</CardTitle>
+                <CardTitle className="text-lg text-white">Latest Sites Checked</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
@@ -185,7 +185,7 @@ const MainDashboard = () => {
                       className="flex items-center justify-between p-2 hover:bg-[#252525] rounded cursor-pointer"
                       onClick={() => handleWebsiteClick(site.website)}
                     >
-                      <span className="text-sm text-gray-300">{site.website}</span>
+                      <span className="text-sm text-[#9eff8a]">{site.website}</span>
                       <ArrowRight className="w-4 h-4 text-gray-500" />
                     </div>
                   ))}
@@ -195,7 +195,7 @@ const MainDashboard = () => {
 
             <Card className="bg-[#1E1E1E] border-[#2C2C2C]">
               <CardHeader>
-                <CardTitle className="text-lg">Down Right Now</CardTitle>
+                <CardTitle className="text-lg text-white">Down Right Now</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
@@ -221,20 +221,18 @@ const MainDashboard = () => {
 
             <Card className="bg-[#1E1E1E] border-[#2C2C2C]">
               <CardHeader>
-                <CardTitle className="text-lg">Last Reported</CardTitle>
+                <CardTitle className="text-lg text-white">Last Reported</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   {lastReported.map((report) => (
                     <div
-                      key={report.website}
+                      key={report}
                       className="flex items-center justify-between p-2 hover:bg-[#252525] rounded cursor-pointer"
-                      onClick={() => handleWebsiteClick(report.website)}
+                      onClick={() => handleWebsiteClick(report)}
                     >
-                      <span className="text-sm text-gray-300">{report.website}</span>
-                      <span className="text-xs text-gray-500">
-                        {new Date(report.timestamp).toLocaleTimeString()}
-                      </span>
+                      <span className="text-sm text-gray-300">{report}</span>
+                      <ArrowRight className="w-4 h-4 text-gray-500" />
                     </div>
                   ))}
                 </div>
