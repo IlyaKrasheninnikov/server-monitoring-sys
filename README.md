@@ -26,7 +26,7 @@ This project is a scalable microservices-based solution for monitoring the healt
 ## Getting Started  
 
 ### Prerequisites  
-- Node.js and npm.  
+- Docker.  
 
 ### Installation  
 1. Clone the repository:
@@ -48,4 +48,6 @@ This project is a scalable microservices-based solution for monitoring the healt
 
 ## Demo
 
-![Demo](https://github.com/user-attachments/assets/2ae2774b-d91c-4a1e-a496-daa47c24d17c)
+![Demo](https://github.com/user-attachments/assets/0d7c8f70-1218-4415-a506-76870fce3cd7)
+![Demo](https://github.com/user-attachments/assets/d2c2d1d5-49aa-4bce-8185-350f4349518b)
+![Demo](https://github.com/user-attachments/assets/297e45c2-3197-4b61-8df2-099125072da5)
