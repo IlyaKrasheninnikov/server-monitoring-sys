@@ -13,6 +13,7 @@ class WebsiteMonitorService:
         self.db = self.client.website_monitor
         self.websites_collection = self.db.websites
         self.reports_collection = self.db.reports
+        self.last_reported_collection = self.db.last_reported
 
     async def _fetch_website(self, url: str) -> tuple[httpx.Response, datetime, datetime]:
         async with httpx.AsyncClient() as client:
@@ -109,6 +110,28 @@ class WebsiteMonitorService:
             {"$push": {"history": datetime.now()}},
             upsert=True
         )
+
+    async def serve_last_reported(self, url: str):
+        existing_url = await self.last_reported_collection.find_one({"url": url})
+        if existing_url:
+            return
+        total_urls = await self.last_reported_collection.count_documents({})
+        if total_urls < 10:
+            await self.last_reported_collection.insert_one({"url": url, "added_at": datetime.now()})
+        else:
+            oldest_url = await self.last_reported_collection.find_one(sort=[("added_at", 1)])
+            if oldest_url:
+                await self.last_reported_collection.delete_one({"_id": oldest_url["_id"]})
+            await self.last_reported_collection.insert_one({"url": url, "added_at": datetime.now()})
+
+    async def get_last_reported(self):
+        urls_list = []
+        cursor = self.last_reported_collection.find({})
+        async for document in cursor:
+            stripped_url = document["url"].replace("https://", "").replace("http://", "")
+            if stripped_url.endswith('/'): stripped_url = stripped_url[:-1]
+            urls_list.append(stripped_url)
+        return urls_list
 
     async def get_outage_history(self, url: str) -> List[OutageReport]:
         now = datetime.now()
