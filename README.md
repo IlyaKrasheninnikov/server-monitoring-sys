@@ -36,26 +36,16 @@ This project is a scalable microservices-based solution for monitoring the healt
    cd server-monitoring-sys
    ```
    
-2. Set up backend and run, using uvicorn:
+2. Set up backend, frontend and mongodb containers using docker:
   
     ```bash
-    cd backend
-    pip install -r requirements.txt
-    uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-    ```
-
-3. Set up frontend with ReactJS:
-
-   ```bash
-    cd frontend
-    npm install
-    npm start
+    docker compose up
     ```
 
 4. Access frontend:
 
-   Open http://localhost:3000 in your browser.
+   Open http://localhost:3000/ in your browser.
 
 ## Demo
 
-![First demo](https://github.com/user-attachments/assets/2ae2774b-d91c-4a1e-a496-daa47c24d17c)
+![Demo](https://github.com/user-attachments/assets/2ae2774b-d91c-4a1e-a496-daa47c24d17c)
