@@ -133,6 +133,12 @@ class WebsiteMonitorService:
             urls_list.append(stripped_url)
         return urls_list
 
+    async def get_latest_checked(self):
+        cursor = self.websites_collection.find({}, {'_id': 0, 'url': 1}).sort('last_checked', -1).limit(5)
+        results = await cursor.to_list(length=5)
+        urls = [doc['url'] for doc in results]
+        return urls
+
     async def get_outage_history(self, url: str) -> List[OutageReport]:
         now = datetime.now()
         past_24_hours = now - timedelta(hours=24)
