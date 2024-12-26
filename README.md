@@ -51,8 +51,10 @@ This project is a scalable microservices-based solution for monitoring the healt
 - ```GET /monitor/latest-checked```- Get recently checked websites
 - ```GET /health``` - Service health check
 
-## Demo
+## Demo screenshots
 
-![Demo](https://github.com/user-attachments/assets/0d7c8f70-1218-4415-a506-76870fce3cd7)
-![Demo](https://github.com/user-attachments/assets/d2c2d1d5-49aa-4bce-8185-350f4349518b)
-![Demo](https://github.com/user-attachments/assets/297e45c2-3197-4b61-8df2-099125072da5)
+![Demo](https://github.com/user-attachments/assets/8df13c2a-6b4d-4ccb-8396-ffb4bc255126)
+![Demo](https://github.com/user-attachments/assets/21124bbe-43e6-4f46-881d-b8f4820c2f52)
+![Demo](https://github.com/user-attachments/assets/2927cb5a-a083-4603-a340-168042db30d4)
+![Demo](https://github.com/user-attachments/assets/a0b8d2f0-efd2-41c2-8d22-dd60742cc1e7)
+![Demo](https://github.com/user-attachments/assets/94632a2a-642f-473d-b15c-df0aec06762d)
