@@ -42,7 +42,6 @@ class WebsiteCheck(WebsiteCheckBase):
 
     @classmethod
     def from_dict(cls, data: dict):
-        print(data)
         return cls(
             url=data["url"],
             status=data["status"],
