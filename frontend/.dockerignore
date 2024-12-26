@@ -1,0 +1,11 @@
+build
+node_modules
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+.git
+.gitignore
+Dockerfile
+README.md

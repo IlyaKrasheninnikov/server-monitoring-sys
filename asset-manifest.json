@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/server-monitoring-sys/static/css/main.6d39efb3.css",
+    "main.js": "/server-monitoring-sys/static/js/main.6493fdff.js",
+    "static/js/453.d855a71b.chunk.js": "/server-monitoring-sys/static/js/453.d855a71b.chunk.js",
+    "index.html": "/server-monitoring-sys/index.html",
+    "main.6d39efb3.css.map": "/server-monitoring-sys/static/css/main.6d39efb3.css.map",
+    "main.6493fdff.js.map": "/server-monitoring-sys/static/js/main.6493fdff.js.map",
+    "453.d855a71b.chunk.js.map": "/server-monitoring-sys/static/js/453.d855a71b.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.6d39efb3.css",
+    "static/js/main.6493fdff.js"
+  ]
+}
