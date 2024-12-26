@@ -1,8 +1,5 @@
 FROM python:3.12-slim
 
-RUN echo "Europe/Moscow" > /etc/timezone
-RUN dpkg-reconfigure -f noninteractive tzdata
-
 WORKDIR /app
 
 RUN pip install poetry
