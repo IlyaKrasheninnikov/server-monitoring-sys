@@ -2,26 +2,21 @@
 
 This project is a scalable microservices-based solution for monitoring the health and performance of servers and popular web applications. It provides real-time metrics collection and visualization using modern technologies.  
 
-## Project Goals  
-1. Build an efficient monitoring system for tracking the state of servers and services.  
-2. Enable scalability through microservices architecture.  
-3. Develop dashboards for visualizing server and application metrics.  
-4. Automate deployment and maintenance processes using Docker.  
-
 ## Features  
-- **Real-time monitoring** with Prometheus and Grafana dashboards.  
-- **Backend services** built with FastAPI for data collection and processing.  
-- **Microservices architecture** to ensure scalability and modularity.  
-- **Automation** of deployment and CI/CD pipelines using GitHub Actions and Docker.  
-- **Cross-platform UI** developed using React for user-friendly metric visualization.  
+- **Real-time website monitoring**
+- **Response time tracking**
+- **Outage detection and reporting**
+- **Historical data visualization**
+- **REST API endpoints**
+- **Modern React dashboard**
+- **MongoDB integration**
 
 ## Tech Stack  
 - **Backend:** FastAPI  
 - **Frontend:** Reactjs
 - **DevOps:** Docker, Docker Compose  
-- **Monitoring:** Prometheus, Grafana  
+- **Monitoring:** APScheduler  
 - **Database:** MongoDB  
-- **CI/CD:** GitHub Actions  
 
 ## Getting Started  
 
@@ -45,6 +40,16 @@ This project is a scalable microservices-based solution for monitoring the healt
 4. Access frontend:
 
    Open http://localhost:3000/ in your browser.
+
+
+### API Endpoints
+
+- ```GET /monitor/status/{url}``` - Get website status detailed information
+- ```POST /monitor/report/{url}``` - Report website issue
+- ```GET /monitor/outage-history/{url}``` - Get outage history
+- ```GET /monitor/last-reported``` - Get recently reported websites
+- ```GET /monitor/latest-checked```- Get recently checked websites
+- ```GET /health``` - Service health check
 
 ## Demo
 
