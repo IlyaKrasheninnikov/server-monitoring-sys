@@ -99,3 +99,11 @@ async def get_last_reported():
         return await monitor_service.get_last_reported()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/monitor/latest-checked")
+async def get_latest_checked():
+    try:
+        return await monitor_service.get_latest_checked()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
