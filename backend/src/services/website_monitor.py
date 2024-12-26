@@ -1,11 +1,14 @@
 from datetime import datetime, timedelta
 from collections import Counter
-from typing import List, Optional, Dict
+from typing import List, Optional
+
+import pytz
 from motor.motor_asyncio import AsyncIOMotorClient
 import httpx
 
 from ..models.website import WebsiteCheck, WebsiteHistoryEntry, OutageReport
 
+moscow_tz = pytz.timezone('Europe/Moscow')
 
 class WebsiteMonitorService:
     def __init__(self, mongodb_uri: str):
@@ -17,9 +20,9 @@ class WebsiteMonitorService:
 
     async def _fetch_website(self, url: str) -> tuple[httpx.Response, datetime, datetime]:
         async with httpx.AsyncClient() as client:
-            start_time = datetime.now()
+            start_time = datetime.now(moscow_tz)
             response = await client.get(url, timeout=10)
-            end_time = datetime.now()
+            end_time = datetime.now(moscow_tz)
             return response, start_time, end_time
 
     async def _get_last_down(self, url: str) -> Optional[datetime]:
@@ -36,7 +39,7 @@ class WebsiteMonitorService:
         return last_down_event["last_checked"]
 
     async def _process_website_history(self, url: str, response_time: float) -> List[WebsiteHistoryEntry]:
-        now = datetime.now()
+        now = datetime.now(moscow_tz)
         past_24_hours = now - timedelta(hours=24)
 
         website_obj = await self.websites_collection.find_one({'url': str(url)})
@@ -77,7 +80,7 @@ class WebsiteMonitorService:
                 url=url,
                 status=str(status_code),
                 response_time=response_time,
-                last_checked=datetime.now(),
+                last_checked=datetime.now(moscow_tz),
                 is_down=is_down,
                 history=history,
                 last_down=last_down_str
@@ -91,7 +94,7 @@ class WebsiteMonitorService:
                 response_time=0,
                 is_down=True,
                 history=history,
-                last_down=datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+                last_down=datetime.now(moscow_tz).strftime("%d.%m.%Y %H:%M:%S")
             )
         await self.save_website_status(website_check)
         return website_check
@@ -107,7 +110,7 @@ class WebsiteMonitorService:
     async def save_report(self, url: str):
         await self.reports_collection.update_one(
             {"url": str(url)},
-            {"$push": {"history": datetime.now()}},
+            {"$push": {"history": datetime.now(moscow_tz)}},
             upsert=True
         )
 
@@ -117,12 +120,12 @@ class WebsiteMonitorService:
             return
         total_urls = await self.last_reported_collection.count_documents({})
         if total_urls < 10:
-            await self.last_reported_collection.insert_one({"url": url, "added_at": datetime.now()})
+            await self.last_reported_collection.insert_one({"url": url, "added_at": datetime.now(moscow_tz)})
         else:
             oldest_url = await self.last_reported_collection.find_one(sort=[("added_at", 1)])
             if oldest_url:
                 await self.last_reported_collection.delete_one({"_id": oldest_url["_id"]})
-            await self.last_reported_collection.insert_one({"url": url, "added_at": datetime.now()})
+            await self.last_reported_collection.insert_one({"url": url, "added_at": datetime.now(moscow_tz)})
 
     async def get_last_reported(self):
         urls_list = []
@@ -140,7 +143,7 @@ class WebsiteMonitorService:
         return urls
 
     async def get_outage_history(self, url: str) -> List[OutageReport]:
-        now = datetime.now()
+        now = datetime.now(moscow_tz)
         past_24_hours = now - timedelta(hours=24)
 
         document = await self.reports_collection.find_one(
