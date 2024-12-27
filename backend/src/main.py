@@ -107,3 +107,11 @@ async def get_latest_checked():
         return await monitor_service.get_latest_checked()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/monitor/down-now")
+async def get_down_now():
+    try:
+        return await monitor_service.get_down_now()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+        
