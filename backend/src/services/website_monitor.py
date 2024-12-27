@@ -78,11 +78,12 @@ class WebsiteMonitorService:
 
             history = await self._process_website_history(url, response_time)
 
+            print(datetime.now() + timedelta(hours=3))
             website_check = WebsiteCheck(
                 url=url,
                 status=str(status_code),
                 response_time=response_time,
-                last_checked=datetime.now() + timedelta(hours=3),
+                last_checked= (datetime.now() + timedelta(hours=3)),
                 is_down=is_down,
                 history=history,
                 last_down=last_down_str
