@@ -22,9 +22,9 @@ class WebsiteMonitorService:
 
     async def _fetch_website(self, url: str) -> tuple[httpx.Response, datetime, datetime]:
         async with httpx.AsyncClient() as client:
-            start_time = datetime.now(moscow_tz)
+            start_time = datetime.now()
             response = await client.get(url, timeout=10)
-            end_time = datetime.now(moscow_tz)
+            end_time = datetime.now()
             return response, start_time, end_time
 
     async def _get_last_down(self, url: str) -> Optional[datetime]:
@@ -41,7 +41,7 @@ class WebsiteMonitorService:
         return last_down_event["last_checked"]
 
     async def _process_website_history(self, url: str, response_time: float) -> List[WebsiteHistoryEntry]:
-        now = datetime.now(moscow_tz)
+        now = datetime.now()
         past_24_hours = now - timedelta(hours=24)
 
         website_obj = await self.websites_collection.find_one({'url': str(url)})
@@ -50,7 +50,7 @@ class WebsiteMonitorService:
         msc_tz = pytz.timezone('Europe/Moscow')
         filtered_history = [
             entry for entry in new_history
-            if msc_tz.localize(entry['last_checked']) >= past_24_hours
+            if entry['last_checked'] >= past_24_hours
         ]
 
         filtered_history.append({
@@ -83,7 +83,7 @@ class WebsiteMonitorService:
                 url=url,
                 status=str(status_code),
                 response_time=response_time,
-                last_checked=datetime.now(moscow_tz),
+                last_checked=datetime.now(),
                 is_down=is_down,
                 history=history,
                 last_down=last_down_str
@@ -97,7 +97,7 @@ class WebsiteMonitorService:
                 response_time=0,
                 is_down=True,
                 history=history,
-                last_down=datetime.now(moscow_tz).strftime("%d.%m.%Y %H:%M:%S")
+                last_down=datetime.now().strftime("%d.%m.%Y %H:%M:%S")
             )
         await self.save_website_status(website_check)
         return website_check
@@ -113,7 +113,7 @@ class WebsiteMonitorService:
     async def save_report(self, url: str):
         await self.reports_collection.update_one(
             {"url": str(url)},
-            {"$push": {"history": datetime.now(moscow_tz)}},
+            {"$push": {"history": datetime.now()}},
             upsert=True
         )
 
@@ -123,12 +123,12 @@ class WebsiteMonitorService:
             return
         total_urls = await self.last_reported_collection.count_documents({})
         if total_urls < 10:
-            await self.last_reported_collection.insert_one({"url": url, "added_at": datetime.now(moscow_tz)})
+            await self.last_reported_collection.insert_one({"url": url, "added_at": datetime.now()})
         else:
             oldest_url = await self.last_reported_collection.find_one(sort=[("added_at", 1)])
             if oldest_url:
                 await self.last_reported_collection.delete_one({"_id": oldest_url["_id"]})
-            await self.last_reported_collection.insert_one({"url": url, "added_at": datetime.now(moscow_tz)})
+            await self.last_reported_collection.insert_one({"url": url, "added_at": datetime.now()})
 
     async def get_last_reported(self):
         urls_list = []
@@ -136,14 +136,14 @@ class WebsiteMonitorService:
         async for document in cursor:
             stripped_url = document["url"].replace("https://", "").replace("http://", "")
             if stripped_url.endswith('/'): stripped_url = stripped_url[:-1]
-            urls_list.append(stripped_url)
+            document_obj = await self.get_website_info(document["url"])
+            urls_list.append({"url": stripped_url, "is_down": document_obj.is_down})
         return urls_list
 
     async def get_latest_checked(self):
-        cursor = self.websites_collection.find({}, {'_id': 0, 'url': 1}).sort('last_checked', -1).limit(5)
+        cursor = self.websites_collection.find({}, {'_id': 0, 'url': 1, 'is_down': 1}).sort('last_checked', -1).limit(5)
         results = await cursor.to_list(length=5)
-        urls = [doc['url'] for doc in results]
-        return urls
+        return results
 
     async def get_down_now(self):
         cursor = self.websites_collection.find({'is_down': True}, {'_id': 0, 'url': 1}).sort('last_checked', -1).limit(5)
@@ -152,7 +152,7 @@ class WebsiteMonitorService:
         return urls
 
     async def get_outage_history(self, url: str) -> List[OutageReport]:
-        now = datetime.now(moscow_tz)
+        now = datetime.now()
         past_24_hours = now - timedelta(hours=24)
 
         document = await self.reports_collection.find_one(
