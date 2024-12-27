@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel, HttpUrl, Field
 from dataclasses import dataclass, field
@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 @dataclass
 class WebsiteHistoryEntry:
     response_time: int
-    last_checked: datetime = field(default_factory=datetime.now + timedelta(hours=3))
+    last_checked: datetime = field(default_factory=datetime.now)
 
 
 class WebsiteCheckBase(BaseModel):
@@ -15,7 +15,7 @@ class WebsiteCheckBase(BaseModel):
     status: str
     response_time: float
     last_down: str
-    last_checked: datetime = Field(default_factory=datetime.now + timedelta(hours=3))
+    last_checked: datetime = Field(default_factory=datetime.now)
     is_down: bool = False
 
 
