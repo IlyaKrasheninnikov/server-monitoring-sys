@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/server-monitoring-sys/static/css/main.6d39efb3.css",
-    "main.js": "/server-monitoring-sys/static/js/main.b4850591.js",
+    "main.js": "/server-monitoring-sys/static/js/main.1a63217b.js",
     "static/js/453.d855a71b.chunk.js": "/server-monitoring-sys/static/js/453.d855a71b.chunk.js",
     "index.html": "/server-monitoring-sys/index.html",
     "main.6d39efb3.css.map": "/server-monitoring-sys/static/css/main.6d39efb3.css.map",
-    "main.b4850591.js.map": "/server-monitoring-sys/static/js/main.b4850591.js.map",
+    "main.1a63217b.js.map": "/server-monitoring-sys/static/js/main.1a63217b.js.map",
     "453.d855a71b.chunk.js.map": "/server-monitoring-sys/static/js/453.d855a71b.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.6d39efb3.css",
-    "static/js/main.b4850591.js"
+    "static/js/main.1a63217b.js"
   ]
 }
