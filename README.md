@@ -42,7 +42,7 @@ This project is a scalable microservices-based solution for monitoring the healt
    Open http://localhost:3000/ in your browser.
 
 
-### API Endpoints
+## API Endpoints
 
 - ```GET /monitor/status/{url}``` - Get website status detailed information
 - ```POST /monitor/report/{url}``` - Report website issue
@@ -51,6 +51,10 @@ This project is a scalable microservices-based solution for monitoring the healt
 - ```GET /monitor/latest-checked``` - Get recently checked websites
 - ```GET /monitor/down-now```- Get websites, which are currently unavailable
 - ```GET /health``` - Service health check
+
+## Link to Demo
+
+## **[Github pages link](https://ilyakrasheninnikov.github.io/server-monitoring-sys/)**
 
 ## Demo screenshots
 
