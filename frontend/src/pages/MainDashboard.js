@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { LineChart, Line, ResponsiveContainer } from 'recharts';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
-import { Globe, Search, AlertCircle, ArrowRight } from 'lucide-react';
+import { Globe, Search, AlertCircle } from 'lucide-react';
 import MiniResponseChart from "../components/ui/MiniResponseChart";
 
 const TOP_WEBSITES = [
@@ -17,8 +16,8 @@ const TOP_WEBSITES = [
 const MainDashboard = () => {
   const [websitesData, setWebsitesData] = useState({});
   const [latestChecked, setLatestChecked] = useState([]);
-  const [downSites, setDownSites] = useState([]);
   const [lastReported, setLastReported] = useState([]);
+  const [downNow, setDownNow] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,28 +30,22 @@ const MainDashboard = () => {
 
       const results = await Promise.all(promises);
       const data = {};
-      const downSitesList = [];
 
       results.forEach((result, index) => {
         if (result) {
           const website = TOP_WEBSITES[index];
           data[website] = result;
 
-          if (result.is_down) {
-            downSitesList.push({ website, lastChecked: result.history[result.history.length - 1].last_checked });
-          }
         }
       });
 
       setWebsitesData(data);
-      setDownSites(downSitesList.sort((a, b) => new Date(b.lastChecked) - new Date(a.lastChecked)));
     };
 
     const fetchLatestChecked = async () => {
       try {
         const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/monitor/latest-checked`);
         const data = await response.json();
-        // Clean URLs to match the format used elsewhere
         const cleanedUrls = data.map(url => url.replace(/^https?:\/\//, '').replace(/\/$/, ''));
         setLatestChecked(cleanedUrls.slice(0, 5));
       } catch (error) {
@@ -70,9 +63,20 @@ const MainDashboard = () => {
       }
     };
 
+    const fetchDownNow = async () => {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/monitor/down-now`);
+        const data = await response.json();
+        setDownNow(data.slice(0, 5));
+      } catch (error) {
+        console.error('Error fetching recent reports:', error);
+      }
+    };
+
     fetchAllWebsitesData();
     fetchLatestChecked();
     fetchLastReported();
+    fetchDownNow();
 
     const interval = setInterval(() => {
       fetchAllWebsitesData();
@@ -241,22 +245,20 @@ const MainDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {downSites.length > 0 ? (
-                    downSites.map((site) => (
-                      <div
-                        key={site.website}
-                        className="flex items-center justify-between p-2 hover:bg-[#252525] rounded cursor-pointer"
-                        onClick={() => handleWebsiteClick(site.website)}
-                      >
-                        <span className="text-lg text-[#eb5757]">{site.website}</span>
-                        <AlertCircle className="w-4 h-4 text-[#eb5757]"/>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-sm text-gray-500 text-center py-2">
-                      All sites are up! 🎉
-                    </div>
-                  )}
+                  {downNow.map((website) => {
+                    return (
+                        <div
+                            key={website}
+                            className="flex items-center justify-between p-2 hover:bg-[#252525] rounded cursor-pointer"
+                            onClick={() => handleWebsiteClick(website)}
+                        >
+                        <span className="text-lg text-[#eb5757]">
+                          {website}
+                        </span>
+                          <AlertCircle className="w-4 h-4 text-[#eb5757]"/>
+                        </div>
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
@@ -272,10 +274,10 @@ const MainDashboard = () => {
                     const isDown = siteData?.is_down;
 
                     return (
-                      <div
-                        key={report}
-                        className="flex items-center justify-between p-2 hover:bg-[#252525] rounded cursor-pointer"
-                        onClick={() => handleWebsiteClick(report)}
+                        <div
+                            key={report}
+                            className="flex items-center justify-between p-2 hover:bg-[#252525] rounded cursor-pointer"
+                            onClick={() => handleWebsiteClick(report)}
                       >
                         <span className={`text-lg ${
                           isDown ? 'text-[#eb5757]' : 'text-[#4caf50]'
