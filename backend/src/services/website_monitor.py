@@ -2,13 +2,15 @@ from datetime import datetime, timedelta
 from collections import Counter
 from typing import List, Optional
 
+from zoneinfo import ZoneInfo
+
 import pytz
 from motor.motor_asyncio import AsyncIOMotorClient
 import httpx
 
 from ..models.website import WebsiteCheck, WebsiteHistoryEntry, OutageReport
 
-moscow_tz = pytz.timezone('Europe/Moscow')
+moscow_tz = ZoneInfo('Europe/Moscow')
 
 class WebsiteMonitorService:
     def __init__(self, mongodb_uri: str):
@@ -45,9 +47,10 @@ class WebsiteMonitorService:
         website_obj = await self.websites_collection.find_one({'url': str(url)})
         new_history = website_obj.get('history', []) if website_obj else []
 
+        msc_tz = pytz.timezone('Europe/Moscow')
         filtered_history = [
             entry for entry in new_history
-            if entry['last_checked'] >= past_24_hours
+            if msc_tz.localize(entry['last_checked']) >= past_24_hours
         ]
 
         filtered_history.append({
