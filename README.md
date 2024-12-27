@@ -48,7 +48,8 @@ This project is a scalable microservices-based solution for monitoring the healt
 - ```POST /monitor/report/{url}``` - Report website issue
 - ```GET /monitor/outage-history/{url}``` - Get outage history
 - ```GET /monitor/last-reported``` - Get recently reported websites
-- ```GET /monitor/latest-checked```- Get recently checked websites
+- ```GET /monitor/latest-checked``` - Get recently checked websites
+- ```GET /monitor/down-now```- Get websites, which are currently unavailable
 - ```GET /health``` - Service health check
 
 ## Demo screenshots
