@@ -145,6 +145,12 @@ class WebsiteMonitorService:
         urls = [doc['url'] for doc in results]
         return urls
 
+    async def get_down_now(self):
+        cursor = self.websites_collection.find({'is_down': True}, {'_id': 0, 'url': 1}).sort('last_checked', -1).limit(5)
+        results = await cursor.to_list(length=5)
+        urls = [doc['url'] for doc in results]
+        return urls
+
     async def get_outage_history(self, url: str) -> List[OutageReport]:
         now = datetime.now(moscow_tz)
         past_24_hours = now - timedelta(hours=24)
