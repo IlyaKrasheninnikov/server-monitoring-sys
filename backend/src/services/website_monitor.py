@@ -47,9 +47,6 @@ class WebsiteMonitorService:
         website_obj = await self.websites_collection.find_one({'url': str(url)})
         new_history = website_obj.get('history', []) if website_obj else []
 
-        ldn_tz = pytz.timezone('Europe/London')
-        for entry in new_history:
-            entry['last_checked'] = ldn_tz.localize(entry['last_checked'])
         filtered_history = [
             entry for entry in new_history
             if entry['last_checked'] >= past_24_hours
